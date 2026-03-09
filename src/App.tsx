@@ -1,5 +1,5 @@
 import './App.css'
-import GroupBuyingSettlement from './features/settlement'
+import GroupBuyingSettlement from './features'
 
 function App() {
   return (
