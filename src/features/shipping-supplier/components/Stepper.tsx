@@ -1,6 +1,6 @@
 import { Step, StepLabel, Stepper } from '@mui/material'
 import React from 'react'
-import useDataStore from '../../settlement/store/DataStore'
+import useDataStore from '../store/DataStore'
 
 const steps = [
   '파일 업로드',

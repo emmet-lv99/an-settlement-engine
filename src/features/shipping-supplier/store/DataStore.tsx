@@ -12,6 +12,8 @@ interface DataStore {
   sheetNames: string[]
   setSheetNames: (sheetNames: string[]) => void
   setDeletedFiles: (deletedFiles: File[]) => void
+  selectedSheetNames: string[]
+  setSelectedSheetNames: (sheetNames: string[]) => void
 }
 
 /**
@@ -74,7 +76,10 @@ const useDataStore = create<DataStore>((set, get) => ({
   sheetNames: [],
   setParsedData: data => set({ parsedData: data }),
   setSheetNames: sheetNames => set({ sheetNames }),
-
+  selectedSheetNames: [],
+  setSelectedSheetNames: selectedSheet => {
+    set({selectedSheetNames: selectedSheet})
+  },
   setFiles: async file => {
     const { files } = get()
     if(file === null) {
@@ -104,6 +109,7 @@ const useDataStore = create<DataStore>((set, get) => ({
     }
 
     set({sheetNames: newSheetNames})
+    set({selectedSheetNames: newSheetNames})
   },
   setDeletedFiles: async remainingFiles => {
     set({sheetNames: []})
@@ -116,6 +122,7 @@ const useDataStore = create<DataStore>((set, get) => ({
     }
 
     set({sheetNames: newSheetNames})
+    set({selectedSheetNames: newSheetNames})
     set({files: remainingFiles.length > 0 ? remainingFiles : null})
   },
 }))
