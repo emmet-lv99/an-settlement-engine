@@ -15,7 +15,7 @@ interface DataStore {
   selectedSheetNames: string[]
   setSelectedSheetNames: (sheetNames: string[]) => void
   parseSelectedSheets: () => Promise<void>
-  removeDuplicatesByOrderNo: () => void
+  removeDuplicatesByTrackingNo: () => void
 }
 
 /**
@@ -140,29 +140,28 @@ const useDataStore = create<DataStore>((set, get) => ({
     set({selectedSheetNames: newSheetNames})
     set({files: remainingFiles.length > 0 ? remainingFiles : null})
   },
-  removeDuplicatesByOrderNo: () => {
+  removeDuplicatesByTrackingNo: () => {
     const { parsedData } = get()
       let totalRemovedCount = 0
-      const targetKey = '주문번호'
+      const targetKey = '송장번호'
       const newParsedData = parsedData.map(sheet => {
         const originalCount = sheet.data.length
-        const seenOrderNumbers = new Set<string>()
+        const seenNumbers = new Set<string>()
         
         const uniqueData = sheet.data.filter(row => {
-          const orderNo = String(row[targetKey] || '').trim()
+          const keyVal = String(row[targetKey] || '').trim()
           
-          if (!orderNo) return true 
-          if (seenOrderNumbers.has(orderNo)) {
+          if (!keyVal) return true 
+          if (seenNumbers.has(keyVal)) {
             return false 
           }
           
-          seenOrderNumbers.add(orderNo)
+          seenNumbers.add(keyVal)
           return true 
         })
         const removedInThisSheet = originalCount - uniqueData.length
         totalRemovedCount += removedInThisSheet
 
-        // 최종 return값
         return {
           ...sheet,
           data: uniqueData

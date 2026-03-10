@@ -4,7 +4,7 @@ import useDataStore from "../../store/DataStore"
 import TabsSqureButtonNoProgress from "./components/TabsSqureButtonNoProgress"
 
 const Step3_DuplicateRemoval = () => {
-  const {files, parsedData, removeDuplicatesByOrderNo} = useDataStore()  
+  const {files, parsedData, removeDuplicatesByTrackingNo} = useDataStore()  
   const [activeTab, setActiveTab] = useState<string>("")
 
   // 데이터가 들어오면 첫 번째 시트를 기본 선택
@@ -17,11 +17,11 @@ const Step3_DuplicateRemoval = () => {
   return  <Card variant="outlined">
       <StyledCardHeader
         title={files ? files[0].name : null}
-        subheader="각 시트별로 중복된 주문내역을 제거합니다."
+        subheader="각 시트별로 중복된 송장내역을 제거합니다."
         sx={{ padding: '', borderBottom: '1px solid #e0e0e0' }}
       />
       <CardContent>
-        <Button sx={{marginBottom: '12px'}} onClick={removeDuplicatesByOrderNo}>전체 중복제거</Button>
+        <Button sx={{marginBottom: '12px'}} onClick={removeDuplicatesByTrackingNo}>전체 중복제거</Button>
         <Box sx={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
           {parsedData.map(item => (
             <TabsSqureButtonNoProgress

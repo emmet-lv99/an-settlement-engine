@@ -42,10 +42,10 @@ const StepController = (props: HandleStepProps) => {
       const seen = new Set();
       const hasDuplicates = parsedData[i].data.some(
         row => {
-          const orderNo = row['주문번호'];
-          if(!orderNo) return false;
-          if(seen.has(orderNo)) return true;
-          seen.add(orderNo);
+          const trackingNo = row['송장번호'];
+          if(!trackingNo) return false;
+          if(seen.has(trackingNo)) return true;
+          seen.add(trackingNo);
           return false
         }
       )
