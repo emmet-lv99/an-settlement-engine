@@ -66,7 +66,6 @@ const StepController = (props: HandleStepProps) => {
               (currentStep === 0 && files?.length === 0) ||
               (currentStep === 1 && selectedSheetNames.length === 0) ||
               (currentStep === 2 && checkStep3Duplicate() )
-
             return (
               <Button disabled={disabledValue} onClick={handleNext}>
                 다음

@@ -2,6 +2,7 @@ import { Box } from '@mui/material'
 import Step1_FileUpload from '../modules/step1-file-upload'
 import Step2_SourceSelection from '../modules/step2-source-selection'
 import Step3_DuplicateRemoval from '../modules/step3-duplicate-removal'
+import Step4_QuantityCheck from '../modules/step4-quantity-check/inedex'
 import useDataStore from '../store/DataStore'
 import StepController from './StepController'
 import StepperComponent from './Stepper'
@@ -31,6 +32,7 @@ const ShippingSupplierCheckContainer = () => {
       {currentStep === 0 && <Step1_FileUpload />}
       {currentStep === 1 && <Step2_SourceSelection/>}
       {currentStep === 2 && <Step3_DuplicateRemoval/>}
+      {currentStep === 3 && <Step4_QuantityCheck/>}
     <StepController  steps={steps}/>
     </Box>
   )
