@@ -143,7 +143,7 @@ const useDataStore = create<DataStore>((set, get) => ({
   removeDuplicatesByTrackingNo: () => {
     const { parsedData } = get()
       let totalRemovedCount = 0
-      const targetKey = '송장번호'
+      const targetKey = '송장번호(대한통운)'
       const newParsedData = parsedData.map(sheet => {
         const originalCount = sheet.data.length
         const seenNumbers = new Set<string>()

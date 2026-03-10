@@ -30,7 +30,7 @@ const GroupBuyingSettlement = () => {
         >
           <ToggleButton value="settlement">정산</ToggleButton>
           <ToggleButton value="shipping-supplier">배송비 체크(공급사)</ToggleButton>
-          <ToggleButton value="shipping-seller">배송비 체크(셀러)</ToggleButton>
+          {/* <ToggleButton value="shipping-seller">배송비 체크(셀러)</ToggleButton> */}
         </ToggleButtonGroup>
       </Box>
       {tab === 'settlement' ? (
