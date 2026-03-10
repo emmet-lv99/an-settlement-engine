@@ -13,18 +13,45 @@ const StepController = (props: HandleStepProps) => {
     files,
     currentStep,
     selectedSheetNames,
+    parsedData,
     setCurrentStep,
+    parseSelectedSheets,
   } = useDataStore()
 
   
-  const handleNext = () => {
-
+  const handleNext = async () => {
+    if (currentStep === 1) {
+      try {
+        await parseSelectedSheets()
+      } catch (error) {
+        alert('파싱 중 오류가 발생했습니다.')
+        console.error(error)
+        return
+      }
+    }
     if (currentStep === steps.length - 1) {
       alert('마지막 단계입니다.')
       throw new Error('마지막 단계입니다.')
     }
 
     setCurrentStep(currentStep + 1)
+  }
+
+  const checkStep3Duplicate = () => {
+    for (let i = 0; i < parsedData.length; i++) {
+      const seen = new Set();
+      const hasDuplicates = parsedData[i].data.some(
+        row => {
+          const orderNo = row['주문번호'];
+          if(!orderNo) return false;
+          if(seen.has(orderNo)) return true;
+          seen.add(orderNo);
+          return false
+        }
+      )
+      if(hasDuplicates) return true
+    } 
+    return false
   }
 
 
@@ -37,7 +64,8 @@ const StepController = (props: HandleStepProps) => {
             const disabledValue =
               (currentStep === 0 && files === null) ||
               (currentStep === 0 && files?.length === 0) ||
-              (currentStep === 1 && selectedSheetNames.length === 0)
+              (currentStep === 1 && selectedSheetNames.length === 0) ||
+              (currentStep === 2 && checkStep3Duplicate() )
 
             return (
               <Button disabled={disabledValue} onClick={handleNext}>

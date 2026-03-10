@@ -14,6 +14,8 @@ interface DataStore {
   setDeletedFiles: (deletedFiles: File[]) => void
   selectedSheetNames: string[]
   setSelectedSheetNames: (sheetNames: string[]) => void
+  parseSelectedSheets: () => Promise<void>
+  removeDuplicatesByOrderNo: () => void
 }
 
 /**
@@ -40,26 +42,25 @@ const normalizeObjectKeys = (
   return normalized
 }
 
-const handleReadFile = async (file: File):Promise<{sheetName: string; json: Record<string, unknown>[]}> => {
+const handleReadFile = async (file: File, targetSheetNames: string[]) => {
   const data = await file.arrayBuffer()
   const workbook = XLSX.read(data, {type: 'array'})
-  const sheetName = workbook.SheetNames[0]
-  const sheet = workbook.Sheets[sheetName]
-  
-  const rawJson = XLSX.utils.sheet_to_json(sheet, {
-    dateNF: 'yyyy-mm-dd hh:mm:ss', // 날짜 포맷 지정
-    raw: false, // 날짜를 문자열로 변환
-  }) as Record<string, unknown>[]
-
-  const json = rawJson.map(row => normalizeObjectKeys(row))
-
-  console.log(`✅ [컬럼명 정규화] ${file.name}`)
-  if (rawJson.length > 0) {
-    console.log('  원본 컬럼:', Object.keys(rawJson[0]))
-    console.log('  정규화 후:', Object.keys(json[0]))
-  }
-
-  return {sheetName, json}
+  const result = targetSheetNames.map(sheetName => {
+    const sheet = workbook.Sheets[sheetName]
+    const rawJson = XLSX.utils.sheet_to_json(sheet, {
+      dateNF: 'yyyy-mm-dd hh:mm:ss',
+      raw: false,
+    }) as Record<string, unknown>[]
+    
+    const json = rawJson.map(row => normalizeObjectKeys(row))
+    
+    return { 
+      sheetName,
+      json     
+    }
+  })
+  console.log(result)
+  return result
 }
 
 const getFileSheetName = async (file: File):Promise<string[]> => {
@@ -79,6 +80,20 @@ const useDataStore = create<DataStore>((set, get) => ({
   selectedSheetNames: [],
   setSelectedSheetNames: selectedSheet => {
     set({selectedSheetNames: selectedSheet})
+  },
+  parseSelectedSheets: async () => {
+    const { files, selectedSheetNames } = get()
+    if(!files || files.length === 0) return
+
+    const result = await handleReadFile(files[0], selectedSheetNames)
+    
+    const newParsedData = result.map((result, index) => new ParsedDataDto(
+      index + 1,
+      files[0].name,
+      result.sheetName,
+      result.json
+    ))
+    set({parsedData: newParsedData})
   },
   setFiles: async file => {
     const { files } = get()
@@ -124,6 +139,41 @@ const useDataStore = create<DataStore>((set, get) => ({
     set({sheetNames: newSheetNames})
     set({selectedSheetNames: newSheetNames})
     set({files: remainingFiles.length > 0 ? remainingFiles : null})
+  },
+  removeDuplicatesByOrderNo: () => {
+    const { parsedData } = get()
+      let totalRemovedCount = 0
+      const targetKey = '주문번호'
+      const newParsedData = parsedData.map(sheet => {
+        const originalCount = sheet.data.length
+        const seenOrderNumbers = new Set<string>()
+        
+        const uniqueData = sheet.data.filter(row => {
+          const orderNo = String(row[targetKey] || '').trim()
+          
+          if (!orderNo) return true 
+          if (seenOrderNumbers.has(orderNo)) {
+            return false 
+          }
+          
+          seenOrderNumbers.add(orderNo)
+          return true 
+        })
+        const removedInThisSheet = originalCount - uniqueData.length
+        totalRemovedCount += removedInThisSheet
+
+        // 최종 return값
+        return {
+          ...sheet,
+          data: uniqueData
+        }
+      })
+      if (totalRemovedCount > 0) {
+        set({ parsedData: newParsedData })
+        alert(`[${targetKey}] 기준, 총 ${totalRemovedCount}건의 중복 데이터가 제거되었습니다.`)
+      } else {
+        alert(`중복된 ${targetKey}가 없습니다.`)
+      }
   },
 }))
 
