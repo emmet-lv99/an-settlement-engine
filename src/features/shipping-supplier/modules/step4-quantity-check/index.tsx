@@ -15,7 +15,7 @@ const Step4_QuantityCheck = () => {
         String(row['배송주소'] || '').includes('제주')
       ).length;
       
-      const normalCount = sheet.data.length - jejuCount;
+      const normalCount = sheet.data.filter((data)=> data['번호']).length;
 
       totalNormal += normalCount;
       totalJeju += jejuCount;
